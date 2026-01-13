@@ -27,6 +27,9 @@ namespace MusicOM.Core
         [Header("Haptics")]
         [SerializeField] private HapticManager _hapticManager;
 
+        [Header("Passthrough")]
+        [SerializeField] private PassthroughManager _passthroughManager;
+
         private IAppLogger _logger;
         private AppConfig _appConfig;
         private InputManager _inputManager;
@@ -45,6 +48,7 @@ namespace MusicOM.Core
             SetupHandTracking();
             SetupAudio();
             SetupHaptics();
+            SetupPassthrough();
             SetupInputManager();
 
             _logger?.Log("[XRSetup] Initialization complete");
@@ -198,6 +202,29 @@ namespace MusicOM.Core
             _logger?.Log("[XRSetup] Haptics configured");
         }
 
+        private void SetupPassthrough()
+        {
+            if (_appConfig != null && !_appConfig.passthroughEnabled)
+            {
+                _logger?.Log("[XRSetup] Passthrough disabled in config");
+                return;
+            }
+
+            if (_passthroughManager == null)
+            {
+                _passthroughManager = FindFirstObjectByType<PassthroughManager>();
+            }
+
+            if (_passthroughManager == null)
+            {
+                var passthroughGO = new GameObject("PassthroughManager");
+                passthroughGO.transform.SetParent(transform);
+                _passthroughManager = passthroughGO.AddComponent<PassthroughManager>();
+            }
+
+            _logger?.Log("[XRSetup] Passthrough configured");
+        }
+
         private void SetupInputManager()
         {
             _inputManager = FindFirstObjectByType<InputManager>();
@@ -245,5 +272,6 @@ namespace MusicOM.Core
         public InputManager InputManager => _inputManager;
         public AudioManager AudioManager => _audioManager;
         public HapticManager HapticManager => _hapticManager;
+        public PassthroughManager PassthroughManager => _passthroughManager;
     }
 }
