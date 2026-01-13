@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MusicOM is a VR music streaming interface for Meta Quest 3, built in Unity 6000.3.2f1, providing YouTube Music playback with spatial audio, hand tracking, and AR passthrough support.
 
-**Status**: Early foundation phase - SDK integration complete, no application code written yet.
+**Status**: Core infrastructure and VR environment foundation complete.
 
 ## Build & Development Commands
 
@@ -37,18 +37,20 @@ Unity -batchmode -projectPath . -runTests -testPlatform EditMode -testResults re
 - **Input System 1.17.0**: Hand tracking and controller input
 - **OpenXR 1.16.1**: XR runtime
 
-### Planned Code Structure
+### Code Structure
 ```
 Assets/
-├── Scripts/           # C# application code (to be created)
-│   ├── API/          # YouTube Data API client, auth, caching
-│   ├── Audio/        # Playback engine, spatial audio, visualizer
-│   ├── UI/           # VR UI panels, windows, navigation
-│   ├── Input/        # Hand tracking, controller, voice
-│   └── Core/         # Scene management, config, state
-├── Prefabs/          # VR UI components
-├── Scenes/           # Unity scenes
-└── Resources/        # Runtime config, input actions
+├── Scripts/
+│   ├── API/               # YouTube API client, auth
+│   │   └── YouTube/       # YouTubeAuthManager, YouTubeConfig
+│   ├── Audio/             # AudioManager (spatial audio, playback)
+│   ├── Input/             # InputManager, HandTrackingController, HapticManager
+│   ├── Infrastructure/    # Logging (IAppLogger), ErrorHandling (Result, RetryPolicy)
+│   └── Core/              # AppConfig, AppInitializer, ServiceLocator, SceneController, XRSetup
+├── Haptics/               # Custom .haptic files (ERROR, minor action, major action)
+├── Prefabs/               # VR UI components
+├── Scenes/                # Unity scenes
+└── Resources/Config/      # ScriptableObject configs (git-ignored)
 ```
 
 ### Key Configuration Files
@@ -79,6 +81,21 @@ Assets/
 - Store tokens in Android Keystore (encrypted)
 
 **Known limitation**: YouTube API provides metadata only, not direct audio streams. Alternative streaming approach required.
+
+## Custom Haptics
+
+**IMPORTANT**: Use the custom haptic clips in `Assets/Haptics/` for feedback:
+- `ERROR.haptic` - Error/failure feedback
+- `minor action.haptic` - Light interactions (hover, scroll, minor UI)
+- `major action.haptic` - Significant actions (select, confirm, play/pause)
+
+Access via `HapticManager`:
+```csharp
+var haptics = ServiceLocator.Get<HapticManager>();
+haptics.PlayMinorAction(HandSide.Right);  // UI interactions
+haptics.PlayMajorAction(Controller.Both); // Confirmations
+haptics.PlayError(HandSide.Left);         // Errors
+```
 
 ## C# Conventions
 - Target: .NET Standard 2.1, C# 9.0
