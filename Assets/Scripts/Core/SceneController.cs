@@ -12,7 +12,7 @@ namespace MusicOM.Core
         private readonly Stack<string> _navigationStack = new();
         private string _currentPanel;
         private readonly Dictionary<string, AsyncOperation> _loadedScenes = new();
-        private ILogger _logger;
+        private IAppLogger _logger;
 
         public event Action<string> OnPanelChanged;
         public event Action<string, float> OnLoadProgress;
@@ -22,7 +22,7 @@ namespace MusicOM.Core
 
         private void Start()
         {
-            _logger = ServiceLocator.Get<ILogger>();
+            _logger = ServiceLocator.Get<IAppLogger>();
             _logger?.Log("[SceneController] Initialized");
         }
 

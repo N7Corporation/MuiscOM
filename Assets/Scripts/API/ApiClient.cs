@@ -13,13 +13,13 @@ namespace MusicOM.API
     public class ApiClient
     {
         private readonly int _timeoutSeconds;
-        private readonly ILogger _logger;
+        private readonly IAppLogger _logger;
         private readonly Dictionary<string, string> _defaultHeaders = new();
 
         public ApiClient(int timeoutSeconds = 10)
         {
             _timeoutSeconds = timeoutSeconds;
-            _logger = ServiceLocator.TryGet<ILogger>(out var logger) ? logger : null;
+            _logger = ServiceLocator.TryGet<IAppLogger>(out var logger) ? logger : null;
         }
 
         public void SetDefaultHeader(string key, string value)

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MusicOM.Infrastructure.Logging
 {
-    public class UnityLogger : ILogger
+    public class UnityLogger : IAppLogger
     {
         public LogLevel MinimumLevel { get; set; } = LogLevel.Debug;
 

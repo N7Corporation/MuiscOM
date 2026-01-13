@@ -97,3 +97,9 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# API Config files (contain secrets)
+/[Aa]ssets/Resources/Config/YouTubeConfig.asset
+/[Aa]ssets/Resources/Config/YouTubeConfig.asset.meta
+/[Aa]ssets/Resources/Config/AppConfig.asset
+/[Aa]ssets/Resources/Config/AppConfig.asset.meta

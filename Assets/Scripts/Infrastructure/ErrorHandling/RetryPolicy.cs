@@ -12,14 +12,14 @@ namespace MusicOM.Infrastructure.ErrorHandling
         private readonly int _maxAttempts;
         private readonly float _baseDelaySeconds;
         private readonly float _maxDelaySeconds;
-        private readonly ILogger _logger;
+        private readonly IAppLogger _logger;
 
         public RetryPolicy(int maxAttempts = 3, float baseDelaySeconds = 1f, float maxDelaySeconds = 30f)
         {
             _maxAttempts = maxAttempts;
             _baseDelaySeconds = baseDelaySeconds;
             _maxDelaySeconds = maxDelaySeconds;
-            _logger = ServiceLocator.TryGet<ILogger>(out var logger) ? logger : null;
+            _logger = ServiceLocator.TryGet<IAppLogger>(out var logger) ? logger : null;
         }
 
         public async Task<Result<T>> ExecuteAsync<T>(Func<Task<Result<T>>> action, string operationName = "Operation")

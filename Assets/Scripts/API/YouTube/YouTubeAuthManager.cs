@@ -14,7 +14,7 @@ namespace MusicOM.API.YouTube
         [SerializeField] private YouTubeConfig _config;
 
         private ITokenStorage _tokenStorage;
-        private ILogger _logger;
+        private IAppLogger _logger;
         private ApiClient _apiClient;
         private string _codeVerifier;
         private string _state;
@@ -27,7 +27,7 @@ namespace MusicOM.API.YouTube
 
         private void Start()
         {
-            _logger = ServiceLocator.Get<ILogger>();
+            _logger = ServiceLocator.Get<IAppLogger>();
             _tokenStorage = new PlayerPrefsTokenStorage();
             _apiClient = new ApiClient();
 
@@ -72,11 +72,11 @@ namespace MusicOM.API.YouTube
             _logger?.Log("[YouTubeAuth] Processing auth callback");
 
             var uri = new Uri(callbackUrl);
-            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var queryParams = ParseQueryString(uri.Query);
 
-            var state = query.Get("state");
-            var code = query.Get("code");
-            var error = query.Get("error");
+            queryParams.TryGetValue("state", out var state);
+            queryParams.TryGetValue("code", out var code);
+            queryParams.TryGetValue("error", out var error);
 
             if (!string.IsNullOrEmpty(error))
             {
@@ -125,10 +125,10 @@ namespace MusicOM.API.YouTube
                         {
                             var token = new AuthToken
                             {
-                                AccessToken = response.access_token,
-                                RefreshToken = response.refresh_token,
-                                TokenType = response.token_type,
-                                ExpiresAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + response.expires_in
+                                accessToken = response.access_token,
+                                refreshToken = response.refresh_token,
+                                tokenType = response.token_type,
+                                expiresAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + response.expires_in
                             };
 
                             await _tokenStorage.SaveTokenAsync(token);
@@ -158,7 +158,7 @@ namespace MusicOM.API.YouTube
 
             if (!token.IsExpired)
             {
-                callback(Result<string>.Success(token.AccessToken));
+                callback(Result<string>.Success(token.accessToken));
                 yield break;
             }
 
@@ -167,7 +167,7 @@ namespace MusicOM.API.YouTube
             var formData = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "client_id", _config.clientId },
-                { "refresh_token", token.RefreshToken },
+                { "refresh_token", token.refreshToken },
                 { "grant_type", "refresh_token" }
             };
 
@@ -179,17 +179,17 @@ namespace MusicOM.API.YouTube
                     result.Match(
                         onSuccess: async (response) =>
                         {
-                            token.AccessToken = response.access_token;
-                            token.ExpiresAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + response.expires_in;
+                            token.accessToken = response.access_token;
+                            token.expiresAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + response.expires_in;
 
                             if (!string.IsNullOrEmpty(response.refresh_token))
                             {
-                                token.RefreshToken = response.refresh_token;
+                                token.refreshToken = response.refresh_token;
                             }
 
                             await _tokenStorage.SaveTokenAsync(token);
                             _logger?.Log("[YouTubeAuth] Token refreshed successfully");
-                            callback(Result<string>.Success(token.AccessToken));
+                            callback(Result<string>.Success(token.accessToken));
                         },
                         onFailure: (error) =>
                         {
@@ -244,6 +244,28 @@ namespace MusicOM.API.YouTube
                 .Replace("+", "-")
                 .Replace("/", "_")
                 .TrimEnd('=');
+        }
+
+        private System.Collections.Generic.Dictionary<string, string> ParseQueryString(string query)
+        {
+            var result = new System.Collections.Generic.Dictionary<string, string>();
+            if (string.IsNullOrEmpty(query)) return result;
+
+            query = query.TrimStart('?');
+            var pairs = query.Split('&');
+
+            foreach (var pair in pairs)
+            {
+                var keyValue = pair.Split('=');
+                if (keyValue.Length == 2)
+                {
+                    var key = Uri.UnescapeDataString(keyValue[0]);
+                    var value = Uri.UnescapeDataString(keyValue[1]);
+                    result[key] = value;
+                }
+            }
+
+            return result;
         }
 
         [Serializable]

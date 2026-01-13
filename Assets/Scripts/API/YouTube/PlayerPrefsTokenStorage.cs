@@ -9,14 +9,14 @@ namespace MusicOM.API.YouTube
     public class PlayerPrefsTokenStorage : ITokenStorage
     {
         private const string TokenKey = "MusicOM_AuthToken";
-        private readonly ILogger _logger;
+        private readonly IAppLogger _logger;
         private AuthToken _cachedToken;
 
         public bool HasToken => !string.IsNullOrEmpty(PlayerPrefs.GetString(TokenKey, ""));
 
         public PlayerPrefsTokenStorage()
         {
-            _logger = ServiceLocator.TryGet<ILogger>(out var logger) ? logger : null;
+            _logger = ServiceLocator.TryGet<IAppLogger>(out var logger) ? logger : null;
         }
 
         public Task<AuthToken> LoadTokenAsync()

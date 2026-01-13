@@ -5,6 +5,10 @@ namespace MusicOM.Core
     [CreateAssetMenu(fileName = "AppConfig", menuName = "MusicOM/Config/App Config")]
     public class AppConfig : ScriptableObject
     {
+        [Header("Debug")]
+        [Tooltip("Enable debug mode for verbose logging and debug UI")]
+        public bool debugMode = false;
+
         [Header("Performance")]
         [Tooltip("Target frame rate for Quest 3")]
         [Range(72, 120)]

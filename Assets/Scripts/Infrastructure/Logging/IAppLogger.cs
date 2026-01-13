@@ -9,7 +9,7 @@ namespace MusicOM.Infrastructure.Logging
         None = 4
     }
 
-    public interface ILogger
+    public interface IAppLogger
     {
         LogLevel MinimumLevel { get; set; }
 

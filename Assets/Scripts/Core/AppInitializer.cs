@@ -7,7 +7,7 @@ namespace MusicOM.Core
     {
         [SerializeField] private AppConfig _appConfig;
 
-        private ILogger _logger;
+        private IAppLogger _logger;
 
         private void Awake()
         {
@@ -54,7 +54,13 @@ namespace MusicOM.Core
         private void InitializeLogging()
         {
             _logger = new UnityLogger();
+            _logger.MinimumLevel = _appConfig.debugMode ? LogLevel.Debug : LogLevel.Warning;
             ServiceLocator.Register(_logger);
+
+            if (_appConfig.debugMode)
+            {
+                Debug.Log("[AppInitializer] Debug mode enabled - verbose logging active");
+            }
         }
 
         private void InitializeFrameRate()

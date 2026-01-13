@@ -1,15 +1,17 @@
+using System;
 using System.Threading.Tasks;
 
 namespace MusicOM.API.YouTube
 {
+    [Serializable]
     public class AuthToken
     {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
-        public string TokenType { get; set; }
-        public long ExpiresAt { get; set; }
+        public string accessToken;
+        public string refreshToken;
+        public string tokenType;
+        public long expiresAt;
 
-        public bool IsExpired => System.DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= ExpiresAt - 60;
+        public bool IsExpired => DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= expiresAt - 60;
     }
 
     public interface ITokenStorage
